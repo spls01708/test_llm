@@ -31,6 +31,7 @@ app = Flask(__name__)
 @app.route("/query", methods=["POST"])
 def query():
     try:
+        
         # รับคำถามจากผู้ใช้
         data = request.json
         question = data["question"]
@@ -38,9 +39,18 @@ def query():
         # สร้าง Embedding สำหรับคำถาม
         question_embedding = embedding_model.encode([question])
 
-        # ค้นหาข้อมูลที่เกี่ยวข้องใน FAISS
-        _, indices = index.search(np.array(question_embedding), 1)
-        retrieved_content = documents[indices[0][0]]["content"]
+        # ค้นหาข้อมูลที่เกี่ยวข้องใน FAISS (ดึง 3 ชุดข้อมูล)
+        _, indices = index.search(np.array(question_embedding), k=3)
+
+        # ดึงข้อมูลที่เกี่ยวข้อง
+        retrieved_contents = [documents[i]["content"] for i in indices[0]]
+
+        # คัดกรองข้อมูลเพิ่มเติม (ถ้ามีเงื่อนไขเฉพาะ)
+        filtered_content = [content for content in retrieved_contents if "คำสำคัญ" in content]  # ตัวอย่างเงื่อนไข
+
+        # รวมข้อมูลสำหรับ Prompt
+        retrieved_content = "\n".join(filtered_content[:2])  # จำกัดข้อมูลที่รวมใน Prompt
+
 
         # สร้าง Prompt และคำตอบ
         # prompt = f"คำถาม: {question}\nข้อมูล: {retrieved_content}\nคำตอบ: "
