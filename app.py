@@ -48,18 +48,17 @@ def query():
         # outputs = model.generate(inputs["input_ids"], max_length=250, temperature=0.7, top_p=0.9)
         # answer = tokenizer.decode(outputs[0], skip_special_tokens=True)
 
-        # สร้าง Prompt และคำตอบ
-        prompt = f"คำถาม: {question}\nข้อมูลที่เกี่ยวข้อง:\n{retrieved_content}\nคำตอบ: "
+        # สร้าง Prompt
+        prompt = f"คำถาม: {question}\nข้อมูลที่เกี่ยวข้อง:\n{retrieved_content}\nกรุณาตอบคำถามโดยอ้างอิงจากข้อมูลข้างต้นเท่านั้น\nคำตอบ: "
 
-        # Tokenization
-        inputs = tokenizer(prompt, return_tensors="pt", padding=True, truncation=True, add_special_tokens=True).to("cuda")
+        # Tokenize
+        inputs = tokenizer(prompt, return_tensors="pt", padding=True, truncation=True).to("cuda")
 
-        # สร้างคำตอบ
-        outputs = model.generate(inputs["input_ids"], max_length=200, temperature=0.7, top_p=0.9)
+        # Generate คำตอบ
+        outputs = model.generate(inputs["input_ids"], max_length=200, temperature=0.5, top_p=0.9)
 
-        # ถอดรหัสคำตอบ
-        answer = tokenizer.decode(outputs[0], skip_special_tokens=True).strip()
-         
+        # Decode คำตอบ
+        answer = tokenizer.decode(outputs[0], skip_special_tokens=True).strip() 
 
         # ส่งผลลัพธ์กลับ (ภาษาไทย)
         return app.response_class(
