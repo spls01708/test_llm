@@ -61,10 +61,14 @@ def query():
         inputs = tokenizer(prompt, return_tensors="pt", padding=True, truncation=True).to("cuda")
 
         # Generate คำตอบ
-        outputs = model.generate(inputs["input_ids"], max_length=250, temperature=0.5, top_p=0.9)
+        outputs = model.generate(inputs["input_ids"], max_length=200, temperature=0.5, top_p=0.9)
 
         # Decode คำตอบ
         answer = tokenizer.decode(outputs[0], skip_special_tokens=True).strip()
+
+        # ตัดส่วนของ Prompt ออก
+        if "คำตอบ: " in answer:
+            answer = answer.split("คำตอบ: ")[-1].strip()
 
         # ส่งผลลัพธ์กลับ (ภาษาไทย)
         return app.response_class(
@@ -75,6 +79,7 @@ def query():
     except Exception as e:
         # จัดการข้อผิดพลาด
         return jsonify({"error": str(e)}), 500
+
 
 
 if __name__ == "__main__":
