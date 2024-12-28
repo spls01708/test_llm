@@ -70,8 +70,8 @@ def query():
         answer = tokenizer.decode(outputs[0], skip_special_tokens=True).strip()
 
         # ตัดส่วนของ Prompt ออก
-        if "คำตอบ: " in answer:
-            answer = answer.split("คำตอบ: ")[-1].strip()
+        # if "คำตอบ: " in answer:
+        #     answer = answer.split("คำตอบ: ")[-1].strip()
 
         # ส่งผลลัพธ์กลับ (ภาษาไทย)
         return app.response_class(
