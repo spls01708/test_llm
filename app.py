@@ -31,7 +31,6 @@ app = Flask(__name__)
 @app.route("/query", methods=["POST"])
 def query():
     try:
-        
         # รับคำถามจากผู้ใช้
         data = request.json
         question = data["question"]
@@ -39,24 +38,21 @@ def query():
         # สร้าง Embedding สำหรับคำถาม
         question_embedding = embedding_model.encode([question])
 
-        # ค้นหาข้อมูลที่เกี่ยวข้องใน FAISS (ดึง 3 ชุดข้อมูล)
-        _, indices = index.search(np.array(question_embedding), k=3)
-
-        # ดึงข้อมูลที่เกี่ยวข้อง
+        # ค้นหาข้อมูลที่เกี่ยวข้องใน FAISS (ดึง Top-K = 3)
+        k = 3
+        _, indices = index.search(np.array(question_embedding), k)
         retrieved_contents = [documents[i]["content"] for i in indices[0]]
 
-        # คัดกรองข้อมูลเพิ่มเติม (ถ้ามีเงื่อนไขเฉพาะ)
-        filtered_content = [content for content in retrieved_contents if "คำสำคัญ" in content]  # ตัวอย่างเงื่อนไข
+        # กรองข้อมูลเพิ่มเติม (เช่น คำสำคัญ)
+        filtered_contents = [
+            content for content in retrieved_contents if question in content or len(content) > 0
+        ]
 
-        # รวมข้อมูลสำหรับ Prompt
-        retrieved_content = "\n".join(filtered_content[:2])  # จำกัดข้อมูลที่รวมใน Prompt
-
-
-        # สร้าง Prompt และคำตอบ
-        # prompt = f"คำถาม: {question}\nข้อมูล: {retrieved_content}\nคำตอบ: "
-        # inputs = tokenizer(prompt, return_tensors="pt", padding=True, truncation=True).to("cuda")  # ย้าย input ไป GPU
-        # outputs = model.generate(inputs["input_ids"], max_length=250, temperature=0.7, top_p=0.9)
-        # answer = tokenizer.decode(outputs[0], skip_special_tokens=True)
+        # รวมข้อมูลที่เกี่ยวข้อง (ถ้าไม่มีข้อมูลให้ตอบข้อความเริ่มต้น)
+        if not filtered_contents:
+            retrieved_content = "ไม่พบข้อมูลที่เกี่ยวข้อง"
+        else:
+            retrieved_content = "\n".join(filtered_contents[:2])  # จำกัด 2 ข้อมูลที่เกี่ยวข้อง
 
         # สร้าง Prompt
         prompt = f"คำถาม: {question}\nข้อมูลที่เกี่ยวข้อง:\n{retrieved_content}\nกรุณาตอบคำถามโดยอ้างอิงจากข้อมูลข้างต้นเท่านั้น\nคำตอบ: "
@@ -68,7 +64,7 @@ def query():
         outputs = model.generate(inputs["input_ids"], max_length=200, temperature=0.5, top_p=0.9)
 
         # Decode คำตอบ
-        answer = tokenizer.decode(outputs[0], skip_special_tokens=True).strip() 
+        answer = tokenizer.decode(outputs[0], skip_special_tokens=True).strip()
 
         # ส่งผลลัพธ์กลับ (ภาษาไทย)
         return app.response_class(
@@ -80,5 +76,7 @@ def query():
         # จัดการข้อผิดพลาด
         return jsonify({"error": str(e)}), 500
 
+
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080)
+    app.run(host="0.0.0.0", port=8080, threaded=True)
+
