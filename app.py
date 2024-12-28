@@ -20,9 +20,9 @@ index = faiss.IndexFlatL2(dimension)
 index.add(np.array(embeddings))
 
 # โหลด OpenThaiGPT
-tokenizer = AutoTokenizer.from_pretrained("openthaigpt/openthaigpt1.5-7b-instruct")
+tokenizer = AutoTokenizer.from_pretrained("openthaigpt/openthaigpt1.5-7b-instruct", cache_dir="../models/openthaigpt")
 model = AutoModelForCausalLM.from_pretrained(
-    "openthaigpt/openthaigpt1.5-7b-instruct"
+    "openthaigpt/openthaigpt1.5-7b-instruct", cache_dir="../models/openthaigpt"
 ).to("cuda")  # โหลดโมเดลและย้ายไป GPU (ถ้ามี GPU)
 
 # สร้าง Flask App
