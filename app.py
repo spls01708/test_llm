@@ -12,8 +12,11 @@ with open("data.json", "r", encoding="utf-8") as f:
 # โหลด Sentence-BERT สำหรับการสร้าง Embedding
 embedding_model = SentenceTransformer("sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
 
-# สร้าง Embedding และ FAISS Index
-contents = [doc["content"] for doc in documents]
+# สร้าง Embedding และ FAISS Index โดยใช้ทุกฟิลด์
+contents = [
+    f"Section: {doc['section']}, Chapter: {doc['chapter']}, Article: {doc['article']}, Content: {doc['content']}"
+    for doc in documents
+]
 embeddings = embedding_model.encode(contents)
 dimension = embeddings.shape[1]
 index = faiss.IndexFlatL2(dimension)
@@ -41,7 +44,7 @@ def query():
         # ค้นหาข้อมูลที่เกี่ยวข้องใน FAISS (ดึง Top-K = 3)
         k = 3
         _, indices = index.search(np.array(question_embedding), k)
-        retrieved_contents = [documents[i]["content"] for i in indices[0]]
+        retrieved_contents = [contents[i] for i in indices[0]]
 
         # กรองข้อมูลเพิ่มเติม (เช่น คำสำคัญ)
         filtered_contents = [
@@ -52,7 +55,7 @@ def query():
         if not filtered_contents:
             retrieved_content = "ไม่พบข้อมูลที่เกี่ยวข้อง"
         else:
-            retrieved_content = "\n".join(filtered_contents[:2])  # จำกัด 2 ข้อมูลที่เกี่ยวข้อง
+            retrieved_content = "\n\n".join(filtered_contents[:2])  # จำกัด 2 ข้อมูลที่เกี่ยวข้อง
 
         # สร้าง Prompt
         prompt = f"คำถาม: {question}\nข้อมูลที่เกี่ยวข้อง:\n{retrieved_content}\nกรุณาตอบคำถามโดยอ้างอิงจากข้อมูลข้างต้นเท่านั้น\nคำตอบ: "
@@ -81,7 +84,7 @@ def query():
         return jsonify({"error": str(e)}), 500
 
 
-
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080, threaded=True)
+
 
