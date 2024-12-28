@@ -53,13 +53,13 @@ def query():
             retrieved_content = "\n\n".join(filtered_contents[:2])  # จำกัด 2 ข้อมูลที่เกี่ยวข้อง
 
         # สร้าง Prompt
-        prompt = f"คำถาม: {question}\nข้อมูล:\n{retrieved_content}\nตอบคำถามโดยใช้ข้อมูลนี้เท่านั้น\nคำตอบ: "
+        prompt = f"คำถาม: {question}\nข้อมูลที่เกี่ยวข้อง:\n{retrieved_content}\nตอบคำถามโดยใช้ข้อมูลที่เกี่ยวข้องท่านั้น\nคำตอบ: "
 
         # Tokenize
         inputs = tokenizer(prompt, return_tensors="pt", padding=True, truncation=True).to("cuda")
 
         # Generate คำตอบ
-        outputs = model.generate(inputs["input_ids"], max_length=1024, temperature=0.5, top_p=0.9)
+        outputs = model.generate(inputs["input_ids"], max_length=512, temperature=0.5, top_p=0.9)
 
         # Decode คำตอบ
         answer = tokenizer.decode(outputs[0], skip_special_tokens=True).strip()
