@@ -67,7 +67,7 @@ def query():
         inputs = tokenizer(prompt, return_tensors="pt", padding=True, truncation=True).to("cuda")
 
         # Generate คำตอบ
-        outputs = model.generate(inputs["input_ids"], max_length=1500, temperature=0.5, top_p=0.9)
+        outputs = model.generate(inputs["input_ids"], max_length=1200, temperature=0.5, top_p=0.9)
 
         # Decode คำตอบ
         answer = tokenizer.decode(outputs[0], skip_special_tokens=True).strip()
