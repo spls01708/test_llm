@@ -12,11 +12,8 @@ with open("data.json", "r", encoding="utf-8") as f:
 # โหลด Sentence-BERT สำหรับการสร้าง Embedding
 embedding_model = SentenceTransformer("sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
 
-# สร้าง Embedding และ FAISS Index โดยใช้ทุกฟิลด์
-contents = [
-    f"Section: {doc['section']}, Chapter: {doc['chapter']}, Article: {doc['article']}, Content: {doc['content']}"
-    for doc in documents
-]
+# สร้าง Embedding และ FAISS Index โดยใช้เฉพาะ content
+contents = [doc["content"] for doc in documents]
 embeddings = embedding_model.encode(contents)
 dimension = embeddings.shape[1]
 index = faiss.IndexFlatL2(dimension)
@@ -46,10 +43,8 @@ def query():
         _, indices = index.search(np.array(question_embedding), k)
         retrieved_contents = [contents[i] for i in indices[0]]
 
-        # กรองข้อมูลเพิ่มเติม (เช่น คำสำคัญ)
-        filtered_contents = [
-            content for content in retrieved_contents if question in content or len(content) > 0
-        ]
+        # กรองข้อมูลเพิ่มเติม (ถ้าไม่มีข้อมูลที่เกี่ยวข้อง)
+        filtered_contents = [content for content in retrieved_contents if len(content.strip()) > 0]
 
         # รวมข้อมูลที่เกี่ยวข้อง (ถ้าไม่มีข้อมูลให้ตอบข้อความเริ่มต้น)
         if not filtered_contents:
