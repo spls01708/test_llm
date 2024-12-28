@@ -45,7 +45,7 @@ def query():
         # สร้าง Prompt และคำตอบ
         prompt = f"คำถาม: {question}\nข้อมูล: {retrieved_content}\nคำตอบ: "
         inputs = tokenizer(prompt, return_tensors="pt", padding=True, truncation=True).to("cuda")  # ย้าย input ไป GPU
-        outputs = model.generate(inputs["input_ids"], max_length=100, temperature=0.7, top_p=0.9)
+        outputs = model.generate(inputs["input_ids"], max_length=180, temperature=0.7, top_p=0.9)
         answer = tokenizer.decode(outputs[0], skip_special_tokens=True)
 
         # ส่งผลลัพธ์กลับ (ภาษาไทย)
