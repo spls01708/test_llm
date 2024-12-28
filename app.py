@@ -29,12 +29,13 @@ model = AutoModelForCausalLM.from_pretrained(
 # สร้าง Flask App
 app = Flask(__name__)
 
-@app.route("/query", methods=["POST"])
+@app.route("/query", methods=["GET", "POST"])
 def query():
     try:
         # รับคำถามจากผู้ใช้
-        data = request.json
-        question = data["question"]
+        # data = request.json
+        # question = data["question"]
+        question = request.args.get("question") if request.method == "GET" else request.json.get("question")
 
         # สร้าง Embedding สำหรับคำถาม
         question_embedding = embedding_model.encode([question])
