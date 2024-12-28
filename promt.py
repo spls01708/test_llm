@@ -10,7 +10,8 @@ data = {
             "question" : "การปลดข้าราชการพลเรือน"
     }
 
-response = requests.post(url, json=data)
+r = requests.post(url, json=data)
+response = r.json()
 # print("Response:", response.json())
 
 console.print("[bold green]Answer:[/bold green]")
