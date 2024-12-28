@@ -7,7 +7,7 @@ console = Console()
 url = "http://0.0.0.0:8080/query"
 
 data = {
-            "question" : "การปลดข้าราชการพลเรือน"
+            "question" : "ข้าราชการพลเรือนและสิทธิประโยชน์ของคู่สมรส"
     }
 
 r = requests.post(url, json=data)
