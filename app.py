@@ -9,8 +9,9 @@ import json
 with open("data.json", "r", encoding="utf-8") as f:
     documents = json.load(f)
 
+cache_dir = "./models/paraphrase-multilingual-MiniLM-L12-v2"
 # โหลด Sentence-BERT สำหรับการสร้าง Embedding
-embedding_model = SentenceTransformer("sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
+embedding_model = SentenceTransformer("sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2", cache_folder=cache_dir)
 
 # สร้าง Embedding และ FAISS Index โดยใช้เฉพาะ content
 contents = [doc["content"] for doc in documents]
