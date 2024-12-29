@@ -7,7 +7,7 @@ console = Console()
 url = "http://0.0.0.0:8080/query"
 
 data = {
-    "question": "ข้าราชการพลเรือนรึเปล่าเมื่อปวยสามารถลาหยุดได้กี่วันต้องเขียนใบลาหรือไม่?"
+    "question": "คนพิการเป็นข้าราชการพลเรือนได้ไหม"
 }
 
 r = requests.post(url, json=data)
